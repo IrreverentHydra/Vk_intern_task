@@ -1,0 +1,41 @@
+# Операционная система
+.DS_Store
+Thumbs.db
+
+# Общие IDE и редакторы
+.idea/
+.gigaide/
+*.log
+
+# Go
+bin/
+*.exe
+*.test
+*.out
+go.sum
+
+# Node.js и React
+node_modules/
+build/
+.env
+
+# Docker
+*.pid
+docker-compose.override.yml
+.env
+
+# PostgreSQL
+pgdata/
+
+# Логи и временные файлы
+*.log
+*.tmp
+*.swp
+
+# Кэш и временные файлы фронтенда
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Windows файлы
+desktop.ini
