@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import './App.css';
-import Table from './Table';
+import React, { useEffect, useState } from "react";
+import "./App.css";
+import Table from "./Table";
 
 const API_URL = "http://localhost:8080/ping_results";
 
@@ -18,7 +18,11 @@ function App() {
       const response = await fetch(API_URL);
       if (response.ok) {
         const data = await response.json();
-        setPingResults(data);
+        // Сортировка по последнему успешному пингу (от свежего к старому)
+        const sortedData = data.sort((a, b) =>
+        new Date(b.last_successful) - new Date(a.last_successful)
+        );
+        setPingResults(sortedData);
       } else {
         console.error("Ошибка запроса данных");
       }

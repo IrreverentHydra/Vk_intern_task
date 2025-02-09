@@ -12,7 +12,6 @@ bin/
 *.exe
 *.test
 *.out
-go.sum
 
 # Node.js и React
 node_modules/

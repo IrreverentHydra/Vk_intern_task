@@ -11,14 +11,14 @@ import (
 )
 
 const (
-	backendAPI   = "http://backend:8080/ping_results"
+	backendAPI   = "http://vk_intern_task-backend-1:8080/ping_results"
 	pingInterval = 30 * time.Second
 )
 
 type PingResult struct {
-	IPAddress      string `json:"ip_address"`
-	PingTime       string `json:"ping_time"`
-	LastSuccessful string `json:"last_successful"`
+	IPAddress      string   `json:"ip_address"`
+	PingTime       float64  `json:"ping_time"`
+	LastSuccessful string   `json:"last_successful"`
 }
 
 func main() {
@@ -58,11 +58,11 @@ func pingContainer(ip string) {
 	cmd := exec.Command("ping", "-c", "1", ip)
 	start := time.Now()
 	output, err := cmd.CombinedOutput()
-	pingTime := time.Since(start).String()
+	pingDuration := time.Since(start)
 
 	result := PingResult{
 		IPAddress: ip,
-		PingTime:  pingTime,
+		PingTime:  float64(pingDuration.Microseconds()),
 	}
 
 	if err == nil {
@@ -74,6 +74,7 @@ func pingContainer(ip string) {
 	sendPingResult(result)
 }
 
+
 func sendPingResult(result PingResult) {
 	data, err := json.Marshal(result)
 	if err != nil {
@@ -84,11 +85,13 @@ func sendPingResult(result PingResult) {
 	resp, err := http.Post(backendAPI, "application/json", bytes.NewBuffer(data))
 	if err != nil {
 		fmt.Printf("Ошибка отправки данных: %v\n", err)
+		fmt.Println("Отправляемые данные:", string(data))
 		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusCreated {
 		fmt.Printf("Ошибка ответа от сервера: %s\n", resp.Status)
+		fmt.Println("Отправляемые данные:", string(data))
 	}
 }

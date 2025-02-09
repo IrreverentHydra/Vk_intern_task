@@ -1,31 +1,88 @@
 version: "3.8"
+
 services:
   backend:
     build: ./backend
     ports:
       - "8080:8080"
+    depends_on:
+      - postgres
+    environment:
+      DB_USER: postgres
+      DB_PASSWORD: admin
+      DB_NAME: ping_db
+      DB_HOST: postgres
+      DB_PORT: 5432
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "8080" ]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 5s
+    networks:
+      - ping_network
 
   pinger:
     build: ./pinger
+    depends_on:
+      - backend
+    environment:
+      DATABASE_URL: postgres://postgres:admin@postgres:5432/ping_db?sslmode=disable
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - ping_network
 
   frontend:
     build: ./frontend
     ports:
       - "3000:3000"
+    depends_on:
+      - backend
     environment:
-      - CHOKIDAR_USEPOLLING=true
+      CHOKIDAR_USEPOLLING: "true"
+    command: sh -c "npm install && npm start"
+    networks:
+      - ping_network
+
   postgres:
     image: postgres:14
     container_name: postgres
     restart: always
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: admin
       POSTGRES_DB: ping_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ping_db"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 5s
+    networks:
+      - ping_network
+
+#  simple1:
+#    image: busybox
+#    container_name: simple1
+#    command: sh -c "sleep 3000"
+#    networks:
+#      - ping_network
+#
+#  simple2:
+#    image: busybox
+#    container_name: simple2
+#    command: sh -c "sleep 3000"
+#    networks:
+#      - ping_network
 
 volumes:
   postgres_data:
+
+networks:
+  ping_network:
+    driver: bridge

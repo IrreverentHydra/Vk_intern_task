@@ -1,27 +1,30 @@
-import React from 'react';
-import './Table.css';
+import React from "react";
 
-const Table = ({ data }) => {
+function Table({ data }) {
+    if (data.length === 0) {
+    return <p>Нет доступных данных.</p>;
+}
+
 return (
-<table className="table">
+<table className="ping-table">
 <thead>
 <tr>
 <th>IP Address</th>
-<th>Ping Time</th>
+<th>Ping Time (ms)</th>
 <th>Last Successful</th>
 </tr>
 </thead>
 <tbody>
-{data.map((result, index) => (
+{data.map((row, index) => (
 <tr key={index}>
-<td>{result.ip_address}</td>
-<td>{result.ping_time}</td>
-<td>{result.last_successful || "N/A"}</td>
+<td>{row.ip_address}</td>
+<td>{row.ping_time}</td>
+<td>{row.last_successful ? new Date(row.last_successful).toLocaleString() : "N/A"}</td>
 </tr>
 ))}
 </tbody>
 </table>
 );
-};
+}
 
 export default Table;

@@ -1,8 +1,17 @@
-FROM golang:1.18
+FROM golang:1.21-alpine
 
 WORKDIR /app
+
+RUN apk add --no-cache go
+
+RUN apk add --no-cache docker-cli
+
+COPY go.mod go.sum ./
+
+RUN go mod download
+
 COPY . .
 
-RUN go mod init pinger && go mod tidy
+RUN go build -v -o pinger || { echo "Build failed"; exit 1; }
 
-CMD ["go", "run", "main.go"]
+CMD ["./pinger"]

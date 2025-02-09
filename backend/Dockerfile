@@ -1,10 +1,14 @@
-FROM golang:1.20
+FROM golang:1.21-alpine
 
 WORKDIR /app
 
+COPY go.mod go.sum ./
+RUN go mod tidy
+
 COPY . .
 
-RUN go mod init pinger && go mod tidy
-RUN go build -o pinger
+RUN CGO_ENABLED=0 go build -o backend .
 
-CMD ["./pinger"]
+EXPOSE 8080
+
+CMD ["./backend"]
